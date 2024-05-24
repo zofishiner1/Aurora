@@ -23,7 +23,6 @@ def main():
                         format='%(asctime)s %(message)s')
 
     intents = config_loader.load_intents() # Загружаем возможные ответы
-
     model_path = config_loader.load_spec_config()  # Получаем путь к модели распознавания речи из конфигурации
     speech_recognizer = speech_recognition.SpeechRecognizer(model_path)
     nlp_engine = nlp.NLP(intents)
