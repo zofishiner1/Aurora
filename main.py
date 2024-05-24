@@ -31,7 +31,7 @@ def main():
     with open('squ.txt', 'r', encoding="utf-8") as file:
         print(file.read())
 
-    print("Версия программы V1.1b1. Говорите!")
+    print("Версия программы V1.1b0. Говорите!")
     while True:
         text = next(speech_recognizer.recognize())  # Получаем текст из генератора
         text = str(text)  # Преобразуем текст в строку
