@@ -1,9 +1,10 @@
-import os
 import wikipedia
 import mwxml
-import mwparserfromhell
 import time
 import gc
+import os
+import mwparserfromhell
+import re
 import requests
 
 def get_wikipedia_summary(search_query):
@@ -25,75 +26,109 @@ wikipedia.set_lang('ru')
 
 memory_threshold = 100 * 1024 * 1024  # 100 МБ
 
-def search_out(page_title):
-    os.chdir('data/wikis')
-    file_path = f'{page_title}.txt'
-
-    if not os.path.isfile(file_path):
-        with open(file_path, 'w', encoding='utf-8') as file:
-            print(f'Файл "{file_path}" создан')
+def search_out(query):
+    """
+    Функция, которая выполняет поиск статьи по запросу и возвращает ее краткое содержание.
+    
+    Аргументы:
+    query (str) -- поисковый запрос
+    
+    Возвращает:
+    str -- краткое содержание статьи
+    """
     try:
-        if os.path.getsize(file_path) > 0:
-            with open(file_path, 'r', encoding='utf-8') as file:
-                summary = file.read()
-                print(f'Используется содержимое файла "{file_path}"')
-                return summary
-
-        page = wikipedia.page(page_title)  # Получаем объект страницы
-        summary = page.summary  # Извлекаем краткое содержание
-
-        with open(file_path, 'w', encoding='utf-8') as file:
-            file.write(summary)
-            print(f'Статья сохранена в файл "{file_path}"')
-
-        return summary
-
+        # Выполняем поиск статьи по запросу
+        page = wikipedia.page(query)
+        
+        # Возвращаем краткое содержание статьи
+        return page.summary
+    
+    except wikipedia.exceptions.PageError:
+        return "Статья не найдена."
+    
     except wikipedia.exceptions.DisambiguationError as e:
-        print("Уточните ваш запрос. ", e)
-        return None
-
-    except wikipedia.exceptions.PageError as e:
-        print("Ничего не найдено на Википедии. ", e)
-        return None
-
-    finally:
-        os.chdir(global_current_dir)
+        # Если найдено несколько страниц, возвращаем первую
+        return wikipedia.summary(e.options[0])
 
 def search_local(target_title):
+    """
+    Функция, которая выполняет поиск статьи по запросу и возвращает ее краткое содержание.
+    
+    Аргументы:
+    target_title (str) -- поисковый запрос
+    
+    Возвращает:
+    str -- краткое содержание статьи
+    """
+
+    print(f"Запрос: {target_title}")
     os.chdir(global_current_dir)
-    filename = os.path.join(
+    index_filename = os.path.join(
+        global_current_dir,
+        "data\\LocWIKI\\ruwiki-latest-pages-articles-multistream-index.txt")
+    dump_filename = os.path.join(
         global_current_dir,
         "data\\LocWIKI\\ruwiki-latest-pages-articles-multistream.xml")
 
-    def parse_revision(revision):
-        wikicode = mwparserfromhell.parse(revision.text)
-        text = wikicode.strip_code()
-        summary = text.split('\n')[0]
-        return summary
+    target_title_lower = target_title.lower()
 
-    with open(filename, "r", encoding="utf-8") as file:
-        dump = mwxml.Dump.from_file(file)
-        target_title_lower = target_title.lower()
-        print(f"Поиск в файле: {filename}")
+    with open(index_filename, "r", encoding="utf-8") as index_file:
+        for line in index_file:
+            parts = line.strip().split(":")
+            if parts[-1].strip().lower() == target_title_lower:
+                page_id = parts[-2]
+                print(f"Page id: {page_id}")
+                break
+        else:
+            print(f"Page id не найдено для статьи {target_title}")
+            return None
+
+    with open(dump_filename, "r", encoding="utf-8") as dump_file:
+        dump = mwxml.Dump.from_file(dump_file)
 
         found_in_file = False
         page_count = 0
         for page in dump:
             page_count += 1
-            if page.title.lower() == target_title_lower:
+            if str(page.id) == page_id:
                 found_in_file = True
-                print(f"Статья найдена в файле: {filename}")
+                print(f"Статья найдена в файле: {dump_filename}")
                 for revision in page:
-                    summary = parse_revision(revision)
-                    return summary
+                    summary = revision
+
+                    if summary is not None:
+                        text_from_revision = summary.text  # Получение текста из объекта Revision
+
+                        # Используйте mwparserfromhell для обработки текста
+                        wikitext = mwparserfromhell.parse(text_from_revision)
+                        cleaned_text = " ".join([x.value.strip() for x in wikitext.nodes if isinstance(x, mwparserfromhell.nodes.text.Text) and not x.value.isdigit()])
+                    return cleaned_text
                 break
             else:
-                print(f'Статья №{page_count} - {page.title} не совпадает с запросом {target_title}.')
+                page_id_int = int(page_id)
+                page_id_int_str = str(page_id_int)
+                page_id_len = len(page_id_int_str)
+                
+                page_id_int_str_part = page_id_int_str[:page_count]
+                page_id_int_part = int(page_id_int_str_part)
+                
+                page_id_part = int(str(page.id))
+                
+                similarity = (page_id_part * 100) // page_id_int_part
+                
+                print(f'{similarity}%. Page id текущей статьи: {page.id}', end="\r")
+                
                 # Очистка мусора из оперативной памяти
                 time.sleep(0.009)
                 wikicode = None
                 text = None
-                del wikicode, text
+                page_id_int = None
+                page_id_int_str = None
+                page_id_len = None
+                page_id_int_str_part = None
+                page_id_int_part = None
+                page_id_part = None
+                del wikicode, text, page_id_int, page_id_int_str, page_id_len, page_id_int_str_part, page_id_int_part, page_id_part
                 gc.collect()
 
         if not found_in_file:
