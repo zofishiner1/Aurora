@@ -37,11 +37,20 @@ def search_out(query):
     str -- краткое содержание статьи
     """
     try:
-        # Выполняем поиск статьи по запросу
-        page = wikipedia.page(query)
-        
-        # Возвращаем краткое содержание статьи
-        return page.summary
+        # Проверяем наличие текстового файла с названием запроса
+        try:
+            with open(f"data/wikis/{query}.txt", "r", encoding="utf-8") as file:
+                return file.read()
+        except FileNotFoundError:
+            # Если файл не найден, выполняем поиск статьи по запросу
+            page = wikipedia.page(query)
+            
+            # Сохраняем текст статьи в текстовый файл
+            with open(f"data/wikis/{query}.txt", "w", encoding="utf-8") as file:
+                file.write(page.content)
+            
+            # Возвращаем краткое содержание статьи
+            return page.summary
     
     except wikipedia.exceptions.PageError:
         return "Статья не найдена."
@@ -52,13 +61,13 @@ def search_out(query):
 
 def search_local(target_title):
     """
-    Функция, которая выполняет поиск статьи по запросу и возвращает ее краткое содержание.
+    Функция, которая выполняет поиск статьи по запросу и возвращает ее содержание.
     
     Аргументы:
     target_title (str) -- поисковый запрос
     
     Возвращает:
-    str -- краткое содержание статьи
+    str -- содержание статьи
     """
 
     print(f"Запрос: {target_title}")
@@ -71,6 +80,13 @@ def search_local(target_title):
         "data\\LocWIKI\\ruwiki-latest-pages-articles-multistream.xml")
 
     target_title_lower = target_title.lower()
+
+    # Проверяем наличие текстового файла с названием запроса
+    file_path = f'data/wikis/{target_title}.txt'
+    if os.path.isfile(file_path) and os.path.getsize(file_path) > 0:
+        with open(file_path, 'r', encoding='utf-8') as file:
+            print(f"Статья найдена в файле: {file_path}")
+            return file.read()
 
     with open(index_filename, "r", encoding="utf-8") as index_file:
         for line in index_file:
@@ -102,7 +118,12 @@ def search_local(target_title):
                         # Используйте mwparserfromhell для обработки текста
                         wikitext = mwparserfromhell.parse(text_from_revision)
                         cleaned_text = " ".join([x.value.strip() for x in wikitext.nodes if isinstance(x, mwparserfromhell.nodes.text.Text) and not x.value.isdigit()])
-                    return cleaned_text
+                        
+                        # Сохраняем текст статьи в текстовый файл
+                        with open(file_path, "w", encoding="utf-8") as file:
+                            file.write(cleaned_text)
+                        
+                        return cleaned_text
                 break
             else:
                 page_id_int = int(page_id)
@@ -134,9 +155,6 @@ def search_local(target_title):
         if not found_in_file:
             print(f"Статья не была найдена в файле: {filename}.")
 
-        file_path = f'{target_title}.txt'
-        if os.path.isfile(file_path) and os.path.getsize(file_path) > 0:
-            with open(file_path, 'r', encoding='utf-8') as file:
-                return file.read()
-
         return None
+
+print(search_local("Литва"))
