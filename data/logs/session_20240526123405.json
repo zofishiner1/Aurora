@@ -1,0 +1,17 @@
+{
+    "session_id": "20240526123405",
+    "start_time": "2024-05-26 12:34:05.876792",
+    "end_time": null,
+    "user_utterances": [
+        "как дела"
+    ],
+    "assistant_responses": [
+        "У меня всё отлично, спасибо!"
+    ],
+    "response_times": [
+        "0.0 секунд"
+    ],
+    "memory_usage": [
+        "226.03125 МБ"
+    ]
+}

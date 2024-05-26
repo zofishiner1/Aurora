@@ -12,7 +12,13 @@ from mynotes import read_note, write_note
 # Импортируем функцию для поиска в Википедии
 from wikisearch import get_wikipedia_summary
 import sys  # Импортируем модуль для работы с системными функциями
+import json
+import psutil  # Импортируем модуль для получения информации об оперативной памяти
+from logz import create_session_file
+from logz import update_session_file
+import datetime
 
+create_session_file()
 
 def printeff(text):
     """
@@ -31,6 +37,7 @@ def printeff(text):
     print()
 
 
+
 def main():
     """
     Главная функция программы.
@@ -38,10 +45,6 @@ def main():
     Возвращает:
     None
     """
-    logging.basicConfig(filename='data/logs/dialogues.log',
-                        level=logging.INFO,
-                        format='%(asctime)s %(message)s')
-    # Устанавливаем конфигурацию логирования
 
     intents = config_loader.load_intents()  # Загружаем возможные ответы
     # Получаем путь к модели распознавания речи из конфигурации
@@ -66,8 +69,21 @@ def main():
         if 'выход' in text:
             # Если пользователь сказал "выход", то программа завершается
             print(f"Вы: {text}")
+            start_time = time.time()
             Aurora_resp = nlp_engine.get_response(text)
+            response_time = start_time - end_time
+            memory_usage = psutil.Process().memory_info().rss / (1024 ** 2)  # Конвертируем в МБ
             texts = Aurora_resp
+            end_time = str(datetime.datetime.now())
+            session_data = {
+                "end_time": end_time,
+                "user_utterance": text,
+                "assistant_response": texts,
+                "response_time": response_time,
+                "memory_usage": memory_usage
+            }
+            
+            update_session_file(session_data, end_time)
 
             speech_synthesis_thread = Thread(target=AuroraSay, args=(texts,))
             speech_synthesis_thread.start()
@@ -84,12 +100,21 @@ def main():
             # Если пользователь спросил о чем-то, то ищем информацию в
             # Википедии
             search_query = text.replace('что такое', '').strip()
+            start_time = time.time()
             summary = get_wikipedia_summary(search_query)
-
+            end_time = time.time()
+            response_time = end_time - start_time
+            memory_usage = psutil.Process().memory_info().rss / (1024 ** 2)  # Конвертируем в МБ
             texts = summary
+            session_data = {
+                "user_utterance": text,
+                "assistant_response": texts,
+                "response_time": response_time,
+                "memory_usage": memory_usage
+            }
 
-            logging.info(f'Пользователь: {text}, Бот: {summary}')
-            # Логируем запрос и ответ
+        
+            update_session_file(data=session_data)
 
             speech_synthesis_thread = Thread(target=AuroraSay, args=(texts,))
             speech_synthesis_thread.start()
@@ -105,8 +130,19 @@ def main():
             note_content = read_note(note_title)
             if note_content:
                 response = note_content
+                start_time = time.time()
+                end_time = time.time()
+                response_time = end_time - start_time
+                memory_usage = psutil.Process().memory_info().rss / (1024 ** 2)  # Конвертируем в МБ
+                session_data = {
+                    "user_utterance": text,
+                    "assistant_response": response,
+                    "response_time": response_time,
+                    "memory_usage": memory_usage
+                }
 
-                logging.info(f'Пользователь: {text}, Бот: {texts}')
+            
+                update_session_file(data=session_data)
 
                 speech_synthesis_thread = Thread(
                     target=AuroraSay, args=(response,))
@@ -120,7 +156,19 @@ def main():
 
             else:
                 response = "Заметка не найдена."
-                logging.info(f'Пользователь: {text}, Бот: {response}')
+                start_time = time.time()
+                end_time = time.time()
+                response_time = end_time - start_time
+                memory_usage = psutil.Process().memory_info().rss / (1024 ** 2)  # Конвертируем в МБ
+                session_data = {
+                    "user_utterance": text,
+                    "assistant_response": response,
+                    "response_time": response_time,
+                    "memory_usage": memory_usage
+                }
+
+            
+                update_session_file(data=session_data)
 
                 speech_synthesis_thread = Thread(
                     target=AuroraSay, args=(response,))
@@ -138,10 +186,19 @@ def main():
             note_content = input("Введите содержимое заметки: ")
             write_note(note_title, note_content)
             response = "Заметка успешно записана."
+            start_time = time.time()
+            end_time = time.time()
+            response_time = end_time - start_time
+            memory_usage = psutil.Process().memory_info().rss / (1024 ** 2)  # Конвертируем в МБ
             texts = response
+            session_data = {
+                "user_utterance": text,
+                "assistant_response": texts,
+                "response_time": response_time,
+                "memory_usage": memory_usage
+            }
 
-            logging.info(f'Пользователь: {text}, Бот: {texts}')
-            # Логируем запрос и ответ
+            update_session_file(data=ssion_data)
 
             speech_synthesis_thread = Thread(target=AuroraSay, args=(texts,))
             speech_synthesis_thread.start()
@@ -155,10 +212,21 @@ def main():
         else:
             # Если пользователь сказал что-то другое, то отвечаем
             # соответствующим образом
+            start_time = time.time()
             Aurora_resp = nlp_engine.get_response(text.lower())
+            end_time = time.time()
+            response_time = end_time - start_time
+            memory_usage = psutil.Process().memory_info().rss / (1024 ** 2)  # Конвертируем в МБ
             texts = Aurora_resp
-            logging.info(f'Пользователь: {text}, Бот: {Aurora_resp}')
-            # Логируем запрос и ответ
+            session_data = {
+                "user_utterance": text,
+                "assistant_response": texts,
+                "response_time": response_time,
+                "memory_usage": memory_usage
+            }
+            
+
+            update_session_file(data=session_data)
 
             speech_synthesis_thread = Thread(target=AuroraSay, args=(texts,))
             speech_synthesis_thread.start()
@@ -167,8 +235,8 @@ def main():
             printeff(f'Вы: {text}')
             printeff(f'Аврора: {Aurora_resp}')
 
-            speech_synthesis_thread.join()
 
+            speech_synthesis_thread.join()
 
 if __name__ == '__main__':
     main()
