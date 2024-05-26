@@ -1,15 +1,42 @@
-import os
-import subprocess
+import os  # Импортируем модуль для работы с операционной системой
+import subprocess  # Импортируем модуль для запуска внешних команд
+
 
 class SystemInteractions:
+    """
+    Класс для взаимодействия с операционной системой.
+    """
+
     def shutdown_computer(self):
+        """
+        Функция для выключения компьютера.
+
+        Возвращает:
+        None
+        """
         if os.name == 'nt':
+            # Если операционная система Windows
             os.system('shutdown /s /f /t 0')
+            # Выполняем команду для выключения компьютера
         elif os.name == 'posix':
+            # Если операционная система Unix-подобная (Linux, macOS)
             os.system('sudo shutdown -h now')
+            # Выполняем команду для выключения компьютера с правами
+            # суперпользователя
 
     def restart_computer(self):
+        """
+        Функция для перезагрузки компьютера.
+
+        Возвращает:
+        None
+        """
         if os.name == 'nt':
+            # Если операционная система Windows
             os.system('shutdown /r /f /t 0')
+            # Выполняем команду для перезагрузки компьютера
         elif os.name == 'posix':
+            # Если операционная система Unix-подобная (Linux, macOS)
             os.system('sudo reboot -f')
+            # Выполняем команду для перезагрузки компьютера с правами
+            # суперпользователя

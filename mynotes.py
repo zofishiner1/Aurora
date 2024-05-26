@@ -1,7 +1,7 @@
 def write_note(title, content):
     """
     Функция для записи заметки.
-    
+
     :параметр title: Название заметки
     :параметр content: Содержимое заметки
     """
@@ -9,10 +9,11 @@ def write_note(title, content):
         file.write(content)
     print(f"Заметка '{title}' успешно записана.")
 
+
 def read_note(title):
     """
     Функция для чтения заметки.
-    
+
     :параметр title: Название заметки
     :return: Содержимое заметки
     """
