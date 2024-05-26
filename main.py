@@ -71,7 +71,7 @@ def main():
             print(f"Вы: {text}")
             start_time = time.time()
             Aurora_resp = nlp_engine.get_response(text)
-            response_time = start_time - end_time
+            response_time = time.time() - start_time
             memory_usage = psutil.Process().memory_info().rss / (1024 ** 2)  # Конвертируем в МБ
             texts = Aurora_resp
             end_time = str(datetime.datetime.now())
@@ -103,7 +103,7 @@ def main():
             start_time = time.time()
             summary = get_wikipedia_summary(search_query)
             end_time = time.time()
-            response_time = end_time - start_time
+            response_time = time.time() - start_time
             memory_usage = psutil.Process().memory_info().rss / (1024 ** 2)  # Конвертируем в МБ
             texts = summary
             session_data = {
@@ -132,7 +132,7 @@ def main():
                 response = note_content
                 start_time = time.time()
                 end_time = time.time()
-                response_time = end_time - start_time
+                response_time = time.time() - start_time
                 memory_usage = psutil.Process().memory_info().rss / (1024 ** 2)  # Конвертируем в МБ
                 session_data = {
                     "user_utterance": text,
@@ -158,7 +158,7 @@ def main():
                 response = "Заметка не найдена."
                 start_time = time.time()
                 end_time = time.time()
-                response_time = end_time - start_time
+                response_time = time.time() - start_time
                 memory_usage = psutil.Process().memory_info().rss / (1024 ** 2)  # Конвертируем в МБ
                 session_data = {
                     "user_utterance": text,
@@ -188,7 +188,7 @@ def main():
             response = "Заметка успешно записана."
             start_time = time.time()
             end_time = time.time()
-            response_time = end_time - start_time
+            response_time = time.time() - start_time
             memory_usage = psutil.Process().memory_info().rss / (1024 ** 2)  # Конвертируем в МБ
             texts = response
             session_data = {
@@ -215,7 +215,7 @@ def main():
             start_time = time.time()
             Aurora_resp = nlp_engine.get_response(text.lower())
             end_time = time.time()
-            response_time = end_time - start_time
+            response_time = time.time() - start_time
             memory_usage = psutil.Process().memory_info().rss / (1024 ** 2)  # Конвертируем в МБ
             texts = Aurora_resp
             session_data = {
@@ -224,7 +224,7 @@ def main():
                 "response_time": response_time,
                 "memory_usage": memory_usage
             }
-            
+
 
             update_session_file(data=session_data)
 
