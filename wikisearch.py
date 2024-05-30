@@ -79,10 +79,10 @@ def search_local(target_title):
     os.chdir(global_current_dir)
     index_filename = os.path.join(
         global_current_dir,
-        "data\\LocWIKI\\ruwiki-latest-pages-articles-multistream-index.txt")
+        "data\\LocWIKI\\ruwiki-20240520-pages-articles-multistream-index.txt")
     dump_filename = os.path.join(
         global_current_dir,
-        "data\\LocWIKI\\ruwiki-latest-pages-articles-multistream.xml")
+        "data\\LocWIKI\\ruwiki-20240520-pages-articles-multistream.xml")
 
     target_title_lower = target_title.lower()
 
