@@ -4,3 +4,4 @@ temp.xml
 data/models/speech_rec/large_rec
 venv
 test.py
+data/logs/
