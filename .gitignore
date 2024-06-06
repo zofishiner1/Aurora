@@ -4,4 +4,13 @@ temp.xml
 data/models/speech_rec/large_rec
 venv
 test.py
-data/logs/
+.tests
+code
+compiled_code.py
+file.txt
+main.py
+peps.py
+ser_test.py
+tets.py
+textsbor.py
+wikipedia_articles.txt

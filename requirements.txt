@@ -4,6 +4,7 @@ certifi==2024.2.2
 cffi==1.16.0
 charset-normalizer==3.3.2
 colorama==0.4.6
+comtypes==1.4.3
 dill==0.3.8
 docopt==0.6.2
 filelock==3.14.0
@@ -17,15 +18,17 @@ mwcli==0.0.3
 mwparserfromhell==0.6.6
 mwtypes==0.3.2
 mwxml==0.3.3
-nlp==0.4.0
 numpy==1.26.4
 pandas==2.2.2
 para==0.0.8
+psutil==5.9.8
 pyarrow==16.1.0
 PyAudio==0.2.14
 pycparser==2.22
+pypiwin32==223
 python-dateutil==2.9.0.post0
 python-Levenshtein==0.25.1
+pyttsx3==2.90
 pytz==2024.1
 pywin32==306
 rapidfuzz==3.9.1

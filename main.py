@@ -1,21 +1,27 @@
-import config_loader  # Импортируем модуль для загрузки конфигурации
-import speech_recognition  # Импортируем модуль для распознавания речи
-import nlp  # Импортируем модуль для обработки естественного языка
+import os
+import sys
+
+# Определите путь к подпапке
+utils_path = os.path.join(os.getcwd(), 'AuroraUtils')
+
+# Добавьте путь к подпапке в список системных путей
+sys.path.insert(0, utils_path)
+
+from AuroraUtils.config_loader import *
+from AuroraUtils.speech_recognition import SpeechRecognizer
+from AuroraUtils.nlp import *
+from AuroraUtils.AuroraSay import AuroraSayF
+from AuroraUtils.currtime import *
+from AuroraUtils.mynotes import *
+from AuroraUtils.wikisearch import get_wikipedia_summary
+from AuroraUtils.logz import create_session_file, update_session_file
+print('Инструменты для работы загружены')
 import logging  # Импортируем модуль для логирования
 import time  # Импортируем модуль для работы со временем
 from threading import Thread  # Импортируем класс для создания потоков
-from AuroraSay import AuroraSay  # Импортируем функцию для синтеза речи
-# Импортируем функцию для получения текущего времени
-from currtime import get_current_time
-# Импортируем функции для работы с заметками
-from mynotes import read_note, write_note
-# Импортируем функцию для поиска в Википедии
-from wikisearch import get_wikipedia_summary
 import sys  # Импортируем модуль для работы с системными функциями
 import json
 import psutil  # Импортируем модуль для получения информации об оперативной памяти
-from logz import create_session_file
-from logz import update_session_file
 import datetime
 
 create_session_file()
@@ -49,9 +55,9 @@ def main():
     intents = config_loader.load_intents()  # Загружаем возможные ответы
     # Получаем путь к модели распознавания речи из конфигурации
     model_path = config_loader.load_spec_config()
-    speech_recognizer = speech_recognition.SpeechRecognizer(model_path)
+    speech_recognizer = SpeechRecognizer(model_path)
     # Создаем объект для распознавания речи
-    nlp_engine = nlp.NLP(intents)
+    nlp_engine = NLP(intents)
     # Создаем объект для обработки естественного языка
 
     with open('squ.txt', 'r', encoding="utf-8") as file:
@@ -85,7 +91,7 @@ def main():
             
             update_session_file(session_data, end_time)
 
-            speech_synthesis_thread = Thread(target=AuroraSay, args=(texts,))
+            speech_synthesis_thread = Thread(target=AuroraSayF, args=(texts,))
             speech_synthesis_thread.start()
             # Создаем поток для синтеза речи
 
@@ -116,7 +122,7 @@ def main():
         
             update_session_file(data=session_data)
 
-            speech_synthesis_thread = Thread(target=AuroraSay, args=(texts,))
+            speech_synthesis_thread = Thread(target=AuroraSayF, args=(texts,))
             speech_synthesis_thread.start()
             # Создаем поток для синтеза речи
 
@@ -200,7 +206,7 @@ def main():
 
             update_session_file(data=ssion_data)
 
-            speech_synthesis_thread = Thread(target=AuroraSay, args=(texts,))
+            speech_synthesis_thread = Thread(target=AuroraSayF, args=(texts,))
             speech_synthesis_thread.start()
             # Создаем поток для синтеза речи
 
@@ -228,7 +234,7 @@ def main():
 
             update_session_file(data=session_data)
 
-            speech_synthesis_thread = Thread(target=AuroraSay, args=(texts,))
+            speech_synthesis_thread = Thread(target=AuroraSayF, args=(texts,))
             speech_synthesis_thread.start()
             # Создаем поток для синтеза речи
 
